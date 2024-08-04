@@ -1,9 +1,10 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AdminAuthService } from "./admin.auth.service";
 import { AdminRegisterRequest } from "./dtos/admin-register.dto";
 import { BaseResponse } from "src/shared/type";
 import { AdminLoginRequest, AdminLoginResponse } from "./dtos/admin-login.dto";
+import { AdminAuth, CurrentUserId } from "src/shared/decorators";
 
 @ApiTags('Admin Auth')
 @Controller('admin/auth')
@@ -31,5 +32,14 @@ export class AdminAuthController {
     })
     register(@Body() registerRequest: AdminRegisterRequest) {
         return this.adminAuthService.register(registerRequest);
+    }
+
+    @ApiOperation({
+        summary: 'Get me for user'
+    })
+    @Get('/me')
+    @AdminAuth()
+    async getMe(@CurrentUserId() userId: number){
+        return userId;
     }
 }
