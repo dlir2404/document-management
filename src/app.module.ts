@@ -5,11 +5,13 @@ import { User } from './database/models';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
+import { FileModule } from './modules/files/file.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
+    FileModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
