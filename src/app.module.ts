@@ -3,9 +3,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './database/models';
 import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
+    AuthModule,
+    UsersModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -24,7 +28,6 @@ import { AuthModule } from './modules/auth/auth.module';
         models: [User],
       })
     }),
-    AuthModule
   ],
 })
 export class AppModule {}
