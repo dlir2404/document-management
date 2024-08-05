@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsOptional } from "class-validator";
+import { IsArray, IsEnum, IsOptional } from "class-validator";
+import { IncomeStatus } from "src/database/models";
 import { DateNPageDTO } from "src/shared/type";
 
 export const UploadIncomeDocumentRequest = {
@@ -57,8 +58,12 @@ export interface IUploadIncomeDocument {
 
 export class GetAllIncomeDocumentsRequest extends DateNPageDTO {
     @ApiProperty({
+        enum: IncomeStatus,
+        isArray: true,
         required: false
     })
+    @IsArray()
     @IsOptional()
-    status?: string
+    @IsEnum(IncomeStatus, { each: true }) // Xác thực rằng mỗi phần tử của mảng là một giá trị trong enum
+    status: IncomeStatus[];
 }
