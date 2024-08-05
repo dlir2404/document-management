@@ -32,14 +32,15 @@ export class IncomeDocument extends Model {
     })
     arrivalDate: Date;
 
-    @ForeignKey(() => User)
     @Column({
-        type: DataType.INTEGER
+        type: DataType.DATE
     })
-    signerId: number;
+    signDate: Date;
 
-    @BelongsTo(() => User, 'signerId')
-    signer: User;
+    @Column({
+        type: DataType.STRING
+    })
+    signer: string;
 
     @Column({
         type: DataType.STRING
@@ -95,7 +96,7 @@ export class IncomeDocument extends Model {
     @Column({
         type: DataType.STRING
     })
-    imcomeUrl: string;
+    incomeUrl: string;
 
     @Column({
         type: DataType.STRING
