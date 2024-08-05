@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { IncomeDocumentService } from "./document.income.service";
-import { GetAllIncomeDocumentsRequest, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
+import { GetAllIncomeDocumentsRequest, PresentToLeaderRequest, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { v4 as uuidv4 } from 'uuid';
@@ -57,5 +57,11 @@ export class IncomeDocumentController {
   @Get('/all')
   async getIncomeDocuments(@Query() request: GetAllIncomeDocumentsRequest) {
     return this.incomeService.getIncomeDocuments(request)
+  }
+
+  @Post('/present-to-leader')
+  @ApiOperation({ summary: 'Office clerk present document to leader'})
+  async presentToLeader(@Body() body: PresentToLeaderRequest) {
+    return await this.incomeService.presentToLeader(body)
   }
 }
