@@ -1,5 +1,7 @@
-import { AutoIncrement, BelongsTo, Column, CreatedAt, DeletedAt, ForeignKey, Model, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript';
+import { AutoIncrement, BelongsTo, BelongsToMany, Column, CreatedAt, DeletedAt, ForeignKey, HasMany, Model, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript';
 import { Room } from './room.model';
+import { IncomeDocument } from './income.document.model';
+import { Collaborating } from './collaborating.model';
 
 export enum UserRole {
     ADMIN = 1,
@@ -30,6 +32,9 @@ export class User extends Model {
 
     @BelongsTo(() => Room)
     room: Room;
+
+    @BelongsToMany(() => IncomeDocument, () => Collaborating)
+    incomDocuments: IncomeDocument[];
 
     @CreatedAt
     createdAt: Date;

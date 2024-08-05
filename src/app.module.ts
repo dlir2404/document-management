@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { Room, User } from './database/models';
+import { Collaborating, IncomeDocument, Room, User } from './database/models';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
-import { JwtModule } from '@nestjs/jwt';
 import { FileModule } from './modules/files/file.module';
 import { RoomsModule } from './modules/room/room.module';
+import { DocumentsModule } from './modules/documents/documents.module';
 
 @Module({
   imports: [
@@ -14,6 +14,7 @@ import { RoomsModule } from './modules/room/room.module';
     UsersModule,
     RoomsModule,
     FileModule,
+    DocumentsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -29,7 +30,7 @@ import { RoomsModule } from './modules/room/room.module';
         database: configService.get<string>('DATABASE_NAME'),
         autoLoadModels: true,
         synchronize: true,
-        models: [User, Room],
+        models: [User, Room, IncomeDocument, Collaborating],
       })
     }),
   ],
