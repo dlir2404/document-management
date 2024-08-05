@@ -1,4 +1,5 @@
-import { AutoIncrement, Column, CreatedAt, DeletedAt, Model, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript';
+import { AutoIncrement, BelongsTo, Column, CreatedAt, DeletedAt, ForeignKey, Model, PrimaryKey, Table, UpdatedAt } from 'sequelize-typescript';
+import { Room } from './room.model';
 
 export enum UserRole {
     ADMIN = 1,
@@ -22,6 +23,13 @@ export class User extends Model {
 
     @Column
     role: UserRole;
+
+    @ForeignKey(() => Room)
+    @Column
+    roomId: number;
+
+    @BelongsTo(() => Room)
+    room: Room;
 
     @CreatedAt
     createdAt: Date;

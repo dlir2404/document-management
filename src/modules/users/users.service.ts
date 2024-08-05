@@ -40,6 +40,7 @@ export class UsersService {
         const { page, pageSize } = params;
 
         const { count, rows } = await User.findAndCountAll({
+            include: ['room'],
             limit: +pageSize,
             offset: +(page - 1) * pageSize
         })

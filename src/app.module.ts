@@ -1,16 +1,18 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { User } from './database/models';
+import { Room, User } from './database/models';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { FileModule } from './modules/files/file.module';
+import { RoomsModule } from './modules/room/room.module';
 
 @Module({
   imports: [
     AuthModule,
     UsersModule,
+    RoomsModule,
     FileModule,
     ConfigModule.forRoot({
       isGlobal: true,
@@ -27,7 +29,7 @@ import { FileModule } from './modules/files/file.module';
         database: configService.get<string>('DATABASE_NAME'),
         autoLoadModels: true,
         synchronize: true,
-        models: [User],
+        models: [User, Room],
       })
     }),
   ],
