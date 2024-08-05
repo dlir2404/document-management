@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { IncomeDocumentService } from "./document.income.service";
 import { GetAllIncomeDocumentsRequest, PresentToLeaderRequest, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
@@ -63,5 +63,10 @@ export class IncomeDocumentController {
   @ApiOperation({ summary: 'Office clerk present document to leader'})
   async presentToLeader(@Body() body: PresentToLeaderRequest) {
     return await this.incomeService.presentToLeader(body)
+  }
+
+  @Delete(':id')
+  async deleteDocument(@Param('id') id: number) {
+    return this.incomeService.deleteDocument(id)
   }
 }

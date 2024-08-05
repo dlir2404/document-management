@@ -77,4 +77,20 @@ export class IncomeDocumentService {
 
         return { result: true }
     }
+
+    async deleteDocument(id: number) {
+        const document = await IncomeDocument.findByPk(id)
+
+        if (!document) {
+            throw new NotFoundException("Document not found")
+        }
+
+        await IncomeDocument.destroy({
+            where: {
+                id: id
+            }
+        })
+
+        return { result: true }
+    }
 }
