@@ -1,7 +1,7 @@
-import { BadRequestException, Body, Controller, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Get, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { IncomeDocumentService } from "./document.income.service";
-import { UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
+import { GetAllIncomeDocumentsRequest, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { v4 as uuidv4 } from 'uuid';
@@ -52,5 +52,10 @@ export class IncomeDocumentController {
       fileName: file?.filename,
       ...body
     })
+  }
+
+  @Get('/all')
+  async getIncomeDocuments(@Query() request: GetAllIncomeDocumentsRequest) {
+    return this.incomeService.getIncomeDocuments(request)
   }
 }

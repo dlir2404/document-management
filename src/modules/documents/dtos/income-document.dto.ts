@@ -1,4 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger"
+import { IsOptional } from "class-validator";
+import { DateNPageDTO } from "src/shared/type";
 
 export const UploadIncomeDocumentRequest = {
     file: {
@@ -51,4 +53,12 @@ export interface IUploadIncomeDocument {
     thematic?:string;
     category?:string;
     abstract?:string;
+}
+
+export class GetAllIncomeDocumentsRequest extends DateNPageDTO {
+    @ApiProperty({
+        required: false
+    })
+    @IsOptional()
+    status?: string
 }
