@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsArray, IsEnum, IsOptional } from "class-validator";
+import { IsArray, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { EmergencyLevel, IncomeStatus } from "src/database/models";
 import { DateNPageDTO } from "src/shared/type";
 
@@ -44,16 +44,16 @@ export const UploadIncomeDocumentRequest = {
 
 export interface IUploadIncomeDocument {
     fileName?: string;
-    originalNumber?:string;
-    number?:string;
-    arrivalDate?:string;
-    signDate?:string;
-    signer?:string;
-    sendFrom?:string;
-    sendTo?:string;
-    thematic?:string;
-    category?:string;
-    abstract?:string;
+    originalNumber?: string;
+    number?: string;
+    arrivalDate?: string;
+    signDate?: string;
+    signer?: string;
+    sendFrom?: string;
+    sendTo?: string;
+    thematic?: string;
+    category?: string;
+    abstract?: string;
 }
 
 export class GetAllIncomeDocumentsRequest extends DateNPageDTO {
@@ -83,4 +83,59 @@ export class PresentToLeaderRequest {
         enum: EmergencyLevel
     })
     emergencyLevel: EmergencyLevel
+}
+
+export class RequestProcessDto {
+    @ApiProperty({
+        type: Number
+    })
+    documentId: Number
+
+    @ApiProperty({
+        type: Number
+    })
+    specialistId: Number
+
+    @ApiProperty({
+        type: Number,
+        isArray: true,
+        required: false
+    })
+    @IsArray()
+    @IsOptional()
+    @IsNumber({}, { each: true })
+    collaborators: number[];
+
+    @ApiProperty({
+        type: String
+    })
+    processDirection: string
+
+    @ApiProperty({
+        example: '2023-07-10',
+        description: 'Từ ngày',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    deadline: string;
+}
+
+export class AcceptRequestProcessDto {
+    @ApiProperty({
+        type: Number
+    })
+    documentId: number
+}
+
+export class DenyRequestProcessDto {
+    @ApiProperty({
+        type: Number
+    })
+    documentId: number
+
+    @ApiProperty({
+        type: String
+    })
+    returnReason: string
 }

@@ -1,11 +1,12 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { IncomeDocumentService } from "./document.income.service";
-import { GetAllIncomeDocumentsRequest, PresentToLeaderRequest, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
+import { AcceptRequestProcessDto, DenyRequestProcessDto, GetAllIncomeDocumentsRequest, PresentToLeaderRequest, RequestProcessDto, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
+import { CurrentUserId, LeaderAuth, SpecialistAuth } from "src/shared/decorators";
 
 @Controller('/income')
 @ApiTags('Income Documents')
@@ -68,5 +69,26 @@ export class IncomeDocumentController {
   @Delete(':id')
   async deleteDocument(@Param('id') id: number) {
     return this.incomeService.deleteDocument(id)
+  }
+
+  @Post('request-process')
+  @LeaderAuth()
+  @ApiOperation({ summary: 'Leader request specialist to process the document '})
+  async requestProcess(@Body() body: RequestProcessDto, @CurrentUserId() userId: number) {
+    return this.incomeService.requestProcess(body, userId)
+  }
+
+  @Post('/request-process/accept')
+  @ApiOperation({ summary: 'Specialist accept the request process '})
+  @SpecialistAuth()
+  async acceptRequestProcess(@Body() body: AcceptRequestProcessDto, @CurrentUserId() userId: number) {
+    return this.incomeService.acceptRequestProcess(userId, body.documentId)
+  }
+
+  @Post('/request-process/deny')
+  @ApiOperation({ summary: 'Specialist accept the request process '})
+  @SpecialistAuth()
+  async denyRequestProcess(@Body() body: DenyRequestProcessDto, @CurrentUserId() userId: number) {
+    return this.incomeService.denyRequestProcess(userId, body.documentId, body.returnReason)
   }
 }

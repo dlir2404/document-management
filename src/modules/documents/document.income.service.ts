@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
-import { GetAllIncomeDocumentsRequest, IUploadIncomeDocument, PresentToLeaderRequest } from "./dtos/income-document.dto";
-import { IncomeDocument, IncomeStatus, User, UserRole } from "src/database/models";
-import { Op, where, WhereOptions } from "sequelize";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { GetAllIncomeDocumentsRequest, IUploadIncomeDocument, PresentToLeaderRequest, RequestProcessDto } from "./dtos/income-document.dto";
+import { CommandTicket, IncomeDocument, IncomeStatus, TicketStatus, User, UserRole } from "src/database/models";
+import { Op, Sequelize, where, WhereOptions } from "sequelize";
 
 @Injectable()
 export class IncomeDocumentService {
@@ -16,7 +16,7 @@ export class IncomeDocumentService {
 
     async getIncomeDocuments(params: GetAllIncomeDocumentsRequest) {
 
-        let where:  WhereOptions<IncomeDocument> = {}
+        let where: WhereOptions<IncomeDocument> = {}
 
         if (params.status) {
             if (Array.isArray(params.status)) {
@@ -33,7 +33,7 @@ export class IncomeDocumentService {
                 }
             }
         }
-        
+
         const { rows, count } = await IncomeDocument.findAndCountAll({
             limit: +params.pageSize,
             offset: (params.page - 1) * +params.pageSize,
@@ -90,6 +90,133 @@ export class IncomeDocumentService {
                 id: id
             }
         })
+
+        return { result: true }
+    }
+
+    async requestProcess(body: RequestProcessDto, leaderId: number) {
+        const incomeDocument = await IncomeDocument.findOne({
+            where: {
+                id: body.documentId
+            }
+        })
+
+        if (!incomeDocument) throw new NotFoundException("Document not found")
+
+        if (incomeDocument.leaderId != leaderId) throw new ForbiddenException('You are not in charge of this document')
+
+        const mainProcessor = await User.findOne({
+            where: {
+                id: body.specialistId,
+                role: UserRole.SPECIALIST
+            }
+        })
+
+        if (!mainProcessor) {
+            throw new NotFoundException('Main processor not found')
+        }
+
+        await CommandTicket.create({
+            incomeDocumentId: body.documentId,
+            mainProcessorId: body.specialistId,
+            deadline: body.deadline,
+            processDirection: body.processDirection,
+        })
+
+        await IncomeDocument.update(
+            {
+                status: IncomeStatus.ASSIGNED_FOR_PROCESS,
+            },
+            {
+                where: { id: body.documentId },
+            }
+        );
+
+        return { result: true }
+    }
+
+    async acceptRequestProcess(specialistId: number, documentId: number) {
+        const specialist = await User.findOne({
+            where: {
+                id: specialistId,
+                role: UserRole.SPECIALIST
+            }
+        })
+
+        if (!specialist) throw new NotFoundException('Specialist not found')
+
+        const document = await IncomeDocument.findOne({
+            where: {
+                id: documentId,
+                status: IncomeStatus.ASSIGNED_FOR_PROCESS
+            }
+        })
+
+        if (!document) throw new NotFoundException('Document not found or document status not correct')
+
+        const commandTicket = await CommandTicket.findOne({
+            where: {
+                incomeDocumentId: documentId,
+                mainProcessorId: specialistId,
+                status: TicketStatus.WAITING
+            }
+        })
+
+        if (!commandTicket) throw new NotFoundException('Ticket not found')
+
+        await document.update(
+            {
+                status: IncomeStatus.PROCESSING,
+                mainProcessorId: specialistId
+            }
+        )
+
+        await CommandTicket.update({
+            status: TicketStatus.ACCEPTED
+        }, { where: { id: commandTicket.id }})
+
+        return { result: true }
+    }
+
+    async denyRequestProcess(specialistId: number, documentId: number, returnReason: string) {
+        const specialist = await User.findOne({
+            where: {
+                id: specialistId,
+                role: UserRole.SPECIALIST
+            }
+        })
+
+        if (!specialist) throw new NotFoundException('Specialist not found')
+
+        const document = await IncomeDocument.findOne({
+            where: {
+                id: documentId,
+                status: IncomeStatus.ASSIGNED_FOR_PROCESS
+            }
+        })
+
+        if (!document) throw new NotFoundException('Document not found or document status not correct')
+
+        const commandTicket = await CommandTicket.findOne({
+            where: {
+                incomeDocumentId: documentId,
+                mainProcessorId: specialistId,
+                status: TicketStatus.WAITING
+            }
+        })
+
+        if (!commandTicket) throw new NotFoundException('Ticket not found')
+
+        await document.update(
+            {
+                status: IncomeStatus.PRESENTED_TO_LEADER,
+            }
+        )
+
+        await CommandTicket.update({
+            status: TicketStatus.REFUSED,
+            returnReason: returnReason
+        }, { where: { id: commandTicket.id }})
 
         return { result: true }
     }
