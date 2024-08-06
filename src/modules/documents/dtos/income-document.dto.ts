@@ -42,6 +42,19 @@ export const UploadIncomeDocumentRequest = {
     }
 }
 
+export const CompleteProcessDto = {
+    file: {
+        type: 'string',
+        format: 'binary',
+    },
+    documentId: {
+        type: 'number',
+    },
+    thematic: {
+        type: 'string',
+    }
+}
+
 export interface IUploadIncomeDocument {
     fileName?: string;
     originalNumber?: string;
@@ -54,6 +67,12 @@ export interface IUploadIncomeDocument {
     thematic?: string;
     category?: string;
     abstract?: string;
+}
+
+export interface ICompleteProcess {
+    documentId?: number;
+    fileName?: string;
+    thematic?: string;
 }
 
 export class GetAllIncomeDocumentsRequest extends DateNPageDTO {

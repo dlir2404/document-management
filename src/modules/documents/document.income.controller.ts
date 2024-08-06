@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { IncomeDocumentService } from "./document.income.service";
-import { AcceptRequestProcessDto, DenyRequestProcessDto, GetAllIncomeDocumentsRequest, PresentToLeaderRequest, RequestProcessDto, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
+import { AcceptRequestProcessDto, CompleteProcessDto, DenyRequestProcessDto, GetAllIncomeDocumentsRequest, PresentToLeaderRequest, RequestProcessDto, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { v4 as uuidv4 } from 'uuid';
@@ -90,5 +90,48 @@ export class IncomeDocumentController {
   @SpecialistAuth()
   async denyRequestProcess(@Body() body: DenyRequestProcessDto, @CurrentUserId() userId: number) {
     return this.incomeService.denyRequestProcess(userId, body.documentId, body.returnReason)
+  }
+
+  @Post('process/complete')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: "./uploads",
+      filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        const baseName = path.basename(file.originalname, ext);
+
+        const newFileName = `${baseName}-@uuid@-${uuidv4()}${ext}`;
+
+        cb(null, newFileName);
+      }
+    }),
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype !== 'application/pdf') {
+        return cb(new BadRequestException('Only PDF files are allowed!'), false);
+      }
+      cb(null, true);
+    }
+  }))
+  @ApiOperation({ summary: 'Specialist complete tase, upload a draft' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'File and additional parameters',
+    type: 'multipart/form-data',
+    schema: {
+      type: 'object',
+      properties: {
+        ...CompleteProcessDto
+      },
+    },
+  })
+  @SpecialistAuth()
+  async completeProcess(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any
+  ) {
+    return await this.incomeService.completeProcess({
+      fileName: file?.filename,
+      ...body
+    })
   }
 }

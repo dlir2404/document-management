@@ -1,5 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { GetAllIncomeDocumentsRequest, IUploadIncomeDocument, PresentToLeaderRequest, RequestProcessDto } from "./dtos/income-document.dto";
+import { GetAllIncomeDocumentsRequest, ICompleteProcess, IUploadIncomeDocument, PresentToLeaderRequest, RequestProcessDto } from "./dtos/income-document.dto";
 import { CommandTicket, IncomeDocument, IncomeStatus, TicketStatus, User, UserRole } from "src/database/models";
 import { Op, Sequelize, where, WhereOptions } from "sequelize";
 
@@ -217,6 +217,32 @@ export class IncomeDocumentService {
             status: TicketStatus.REFUSED,
             returnReason: returnReason
         }, { where: { id: commandTicket.id }})
+
+        return { result: true }
+    }
+
+    async completeProcess(body: ICompleteProcess) {
+        const document = await IncomeDocument.findOne({
+            where: {
+                id: body.documentId,
+                status: IncomeStatus.PROCESSING
+            }
+        })
+
+        if (!document) throw new NotFoundException('Document not found')
+
+        await IncomeDocument.update(
+            {
+                status: IncomeStatus.WAITING_FOR_APPROVING_DRAFT,
+                thematic: body.thematic,
+                draftUrl: body.fileName
+            },
+            {
+                where: {
+                    id: body.documentId
+                }
+            }
+        )
 
         return { result: true }
     }
