@@ -1,6 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { ICompleteProcessGoing, RequestProcessDto } from "./dtos/income-document.dto";
 import { GoingDocument, GoingStatus, ProcessTicket, TicketStatus, User, UserRole } from "src/database/models";
+import { where } from "sequelize";
 
 @Injectable()
 export class GoingDocumentService {
@@ -165,6 +166,24 @@ export class GoingDocumentService {
                 }
             }
         )
+
+        return { result: true }
+    }
+
+    async acceptGoingDocument(leaderId: number, documentId: number) {
+        const document = await GoingDocument.findOne({
+            where: {
+                id: documentId
+            }
+        })
+
+        if (!document) throw new NotFoundException('Document not found')
+
+        if (leaderId !== document.leaderId) throw new ForbiddenException('You are not in charge of this document')
+
+        await document.update({
+            status: GoingStatus.APPROVED
+        })
 
         return { result: true }
     }

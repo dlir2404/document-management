@@ -7,6 +7,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import { AcceptGoingDocumentDto } from "./dtos/going-document.dto";
 
 @Controller('/going')
 @ApiTags('Going Documents')
@@ -76,5 +77,12 @@ export class GoingDocumentController {
         specialistId: userId,
         ...body
       })
+    }
+
+    @Post('/document/accept')
+    @ApiOperation({ summary: 'Specialist accept the request process '})
+    @SpecialistAuth()
+    async acceptGoingDocument(@Body() body: AcceptGoingDocumentDto, @CurrentUserId() userId: number) {
+      return this.goingService.acceptGoingDocument(userId, body.documentId)
     }
 }
