@@ -1,8 +1,12 @@
-import { Body, Controller, Post } from "@nestjs/common";
-import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { BadRequestException, Body, Controller, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CurrentUserId, LeaderAuth, SpecialistAuth } from "src/shared/decorators";
-import { AcceptRequestProcessDto, DenyRequestProcessDto, RequestProcessDto } from "./dtos/income-document.dto";
+import { AcceptRequestProcessDto, CompleteProcessGoingDto, DenyRequestProcessDto, RequestProcessDto } from "./dtos/income-document.dto";
 import { GoingDocumentService } from "./document.going.service";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from "multer";
+import * as path from 'path';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('/going')
 @ApiTags('Going Documents')
@@ -27,5 +31,50 @@ export class GoingDocumentController {
     @SpecialistAuth()
     async denyRequestProcess(@Body() body: DenyRequestProcessDto, @CurrentUserId() userId: number) {
       return this.goingService.denyRequestProcess(userId, body.documentId, body.returnReason)
+    }
+
+    @Post('process/complete')
+    @UseInterceptors(FileInterceptor('file', {
+      storage: diskStorage({
+        destination: "./uploads",
+        filename: (req, file, cb) => {
+          const ext = path.extname(file.originalname);
+          const baseName = path.basename(file.originalname, ext);
+  
+          const newFileName = `${baseName}-@uuid@-${uuidv4()}${ext}`;
+  
+          cb(null, newFileName);
+        }
+      }),
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype !== 'application/pdf') {
+          return cb(new BadRequestException('Only PDF files are allowed!'), false);
+        }
+        cb(null, true);
+      }
+    }))
+    @ApiOperation({ summary: 'Specialist complete tase, upload a draft' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+      description: 'File and additional parameters',
+      type: 'multipart/form-data',
+      schema: {
+        type: 'object',
+        properties: {
+          ...CompleteProcessGoingDto
+        },
+      },
+    })
+    @SpecialistAuth()
+    async completeProcess(
+      @UploadedFile() file: Express.Multer.File,
+      @Body() body: any,
+      @CurrentUserId() userId: number
+    ) {
+      return await this.goingService.completeProcess({
+        fileName: file?.filename,
+        specialistId: userId,
+        ...body
+      })
     }
 }

@@ -1,5 +1,5 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { RequestProcessDto } from "./dtos/income-document.dto";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { ICompleteProcessGoing, RequestProcessDto } from "./dtos/income-document.dto";
 import { GoingDocument, GoingStatus, ProcessTicket, TicketStatus, User, UserRole } from "src/database/models";
 
 @Injectable()
@@ -127,6 +127,44 @@ export class GoingDocumentService {
             status: TicketStatus.REFUSED,
             returnReason: returnReason
         }, { where: { id: processTicket.id }})
+
+        return { result: true }
+    }
+
+    async completeProcess(body: ICompleteProcessGoing) {
+        const specialist = await User.findOne({
+            where: {
+                id: body.specialistId
+            }
+        })
+
+        const document = await GoingDocument.findOne({
+            where: {
+                id: body.documentId,
+                status: GoingStatus.PROCESSING
+            }
+        })
+
+        if (!document) throw new NotFoundException('Document not found')
+
+        if (document.mainProcessorId !== body.specialistId) throw new BadRequestException('You are not in charge of this document')
+
+        await GoingDocument.update(
+            {
+                status: GoingStatus.WAITING_FOR_APPROVE,
+                goingUrl: body.fileName,
+                sendTo: body.sendTo,
+                category: body.category,
+                emergencyLevel: body.emergencyLevel,
+                thematic: body.thematic,
+                abstract: body.abstract,
+            },
+            {
+                where: {
+                    id: body.documentId
+                }
+            }
+        )
 
         return { result: true }
     }

@@ -55,6 +55,31 @@ export const CompleteProcessDto = {
     }
 }
 
+export const CompleteProcessGoingDto = {
+    file: {
+        type: 'string',
+        format: 'binary',
+    },
+    documentId: {
+        type: 'number',
+    },
+    sendFrom: {
+        type: 'string',
+    },
+    category: {
+        type: 'string',
+    },
+    emergencyLevel: {
+        type: 'string',
+    },
+    thematic: {
+        type: 'string',
+    },
+    abstract: {
+        type: 'string'
+    }
+}
+
 export interface IUploadIncomeDocument {
     fileName?: string;
     originalNumber?: string;
@@ -73,6 +98,17 @@ export interface ICompleteProcess {
     documentId?: number;
     fileName?: string;
     specialistId: number,
+    abstract?: string;
+}
+
+export interface ICompleteProcessGoing {
+    documentId?: number;
+    fileName?: string;
+    specialistId: number,
+    sendTo?: string;
+    category?: string;
+    emergencyLevel?: string;
+    thematic?: string;
     abstract?: string;
 }
 
