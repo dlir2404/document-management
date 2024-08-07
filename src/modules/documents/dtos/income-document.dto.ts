@@ -50,7 +50,7 @@ export const CompleteProcessDto = {
     documentId: {
         type: 'number',
     },
-    thematic: {
+    abstract: {
         type: 'string',
     }
 }
@@ -72,7 +72,8 @@ export interface IUploadIncomeDocument {
 export interface ICompleteProcess {
     documentId?: number;
     fileName?: string;
-    thematic?: string;
+    specialistId: number,
+    abstract?: string;
 }
 
 export class GetAllIncomeDocumentsRequest extends DateNPageDTO {

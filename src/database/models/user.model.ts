@@ -2,6 +2,7 @@ import { AutoIncrement, BelongsTo, BelongsToMany, Column, CreatedAt, DeletedAt, 
 import { Room } from './room.model';
 import { IncomeDocument } from './income.document.model';
 import { Collaborating } from './collaborating.model';
+import { GoingDocument } from './going.document.model';
 
 export enum UserRole {
     ADMIN = 1,
@@ -34,7 +35,10 @@ export class User extends Model {
     room: Room;
 
     @BelongsToMany(() => IncomeDocument, () => Collaborating)
-    incomDocuments: IncomeDocument[];
+    incomeDocuments: IncomeDocument[];
+
+    @BelongsToMany(() => GoingDocument, () => Collaborating)
+    goingDocuments: GoingDocument[];
 
     @CreatedAt
     createdAt: Date;

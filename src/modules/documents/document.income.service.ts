@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { GetAllIncomeDocumentsRequest, ICompleteProcess, IUploadIncomeDocument, PresentToLeaderRequest, RequestProcessDto } from "./dtos/income-document.dto";
-import { CommandTicket, IncomeDocument, IncomeStatus, TicketStatus, User, UserRole } from "src/database/models";
+import { CommandTicket, GoingDocument, IncomeDocument, IncomeStatus, TicketStatus, User, UserRole } from "src/database/models";
 import { Op, Sequelize, where, WhereOptions } from "sequelize";
 
 @Injectable()
@@ -222,6 +222,12 @@ export class IncomeDocumentService {
     }
 
     async completeProcess(body: ICompleteProcess) {
+        const specialist = await User.findOne({
+            where: {
+                id: body.specialistId
+            }
+        })
+
         const document = await IncomeDocument.findOne({
             where: {
                 id: body.documentId,
@@ -231,10 +237,11 @@ export class IncomeDocumentService {
 
         if (!document) throw new NotFoundException('Document not found')
 
+        if (document.mainProcessorId !== body.specialistId) throw new BadRequestException('You are not in charge of this document')
+
         await IncomeDocument.update(
             {
                 status: IncomeStatus.WAITING_FOR_APPROVING_DRAFT,
-                thematic: body.thematic,
                 draftUrl: body.fileName
             },
             {
@@ -243,6 +250,12 @@ export class IncomeDocumentService {
                 }
             }
         )
+
+        await GoingDocument.create({
+            abstractDraft: body.abstract,
+            draftUrl: body.fileName,
+            sendFrom: specialist.room?.name || null,
+        })
 
         return { result: true }
     }

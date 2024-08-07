@@ -127,10 +127,12 @@ export class IncomeDocumentController {
   @SpecialistAuth()
   async completeProcess(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: any
+    @Body() body: any,
+    @CurrentUserId() userId: number
   ) {
     return await this.incomeService.completeProcess({
       fileName: file?.filename,
+      specialistId: userId,
       ...body
     })
   }
