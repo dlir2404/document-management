@@ -1,10 +1,43 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { ICompleteProcessGoing, RequestProcessDto } from "./dtos/income-document.dto";
 import { GoingDocument, GoingStatus, ProcessTicket, TicketStatus, User, UserRole } from "src/database/models";
-import { where } from "sequelize";
+import { Op, where, WhereOptions } from "sequelize";
+import { GetAllGoingDocumentsRequest } from "./dtos/going-document.dto";
 
 @Injectable()
 export class GoingDocumentService {
+
+    async getGoingDocuments(params: GetAllGoingDocumentsRequest) {
+
+        let where: WhereOptions<GoingDocument> = {}
+
+        if (params.status) {
+            if (Array.isArray(params.status)) {
+                where = {
+                    ...where,
+                    status: {
+                        [Op.in]: params.status
+                    }
+                }
+            } else {
+                where = {
+                    ...where,
+                    status: params.status
+                }
+            }
+        }
+
+        const { rows, count } = await GoingDocument.findAndCountAll({
+            include: ['leader', 'mainProcessor'],
+            order: [['id', 'DESC']],
+            limit: +params.pageSize,
+            offset: (params.page - 1) * +params.pageSize,
+            where: where
+        })
+
+        return { rows, count }
+    }
+
     async requestProcess(body: RequestProcessDto, leaderId: number) {
         const goingDocument = await GoingDocument.findOne({
             where: {
