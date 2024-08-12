@@ -128,6 +128,7 @@ export class IncomeDocumentService {
         await IncomeDocument.update(
             {
                 status: IncomeStatus.ASSIGNED_FOR_PROCESS,
+                mainProcessorId: body.specialistId,
             },
             {
                 where: { id: body.documentId },
