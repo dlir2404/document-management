@@ -35,6 +35,8 @@ export class IncomeDocumentService {
         }
 
         const { rows, count } = await IncomeDocument.findAndCountAll({
+            include: ['leader', 'mainProcessor'],
+            order: [['id', 'DESC']],
             limit: +params.pageSize,
             offset: (params.page - 1) * +params.pageSize,
             where: where

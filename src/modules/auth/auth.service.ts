@@ -30,6 +30,10 @@ export class AuthService {
     }
 
     async getMe(userId: number){
-        return await User.findOne({ where: { id: userId }})
+        const result = await User.findOne({ where: { id: userId }})
+
+        const { password, ...rest } = result.dataValues
+
+        return { ...rest }
     }
 }

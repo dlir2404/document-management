@@ -15,15 +15,16 @@ export class AuthController {
     })
     @Post('login')
     async login(@Body() body: LoginRequest){
+        console.log(body)
         return await this.authService.login(body);
     }
 
-    @ApiOperation({
+    @ApiOperation({ 
         summary: 'Get me for user'
     })
     @Get('/me')
     @AuthRequired([UserRole.LEADER, UserRole.OFFICE_CLERK, UserRole.SPECIALIST])
     async getMe(@CurrentUserId() userId: number){
-        return userId;
+        return this.authService.getMe(userId);
     }
 }
