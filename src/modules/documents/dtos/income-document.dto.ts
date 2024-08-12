@@ -195,3 +195,47 @@ export class DenyRequestProcessDto {
     })
     returnReason: string
 }
+
+export class AcceptDraftProcessDto {
+    @ApiProperty({
+        type: Number,
+        required: true
+    })
+    documentId: number
+}
+
+export class DenyDraftProcessDto {
+    @ApiProperty({
+        type: Number
+    })
+    documentId: Number
+
+    @ApiProperty({
+        type: Number
+    })
+    specialistId: Number
+
+    @ApiProperty({
+        type: Number,
+        isArray: true,
+        required: false
+    })
+    @IsArray()
+    @IsOptional()
+    @IsNumber({}, { each: true })
+    collaborators: number[];
+
+    @ApiProperty({
+        type: String
+    })
+    processDirection: string
+
+    @ApiProperty({
+        example: '2023-07-10',
+        description: 'Từ ngày',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    deadline: string;
+}

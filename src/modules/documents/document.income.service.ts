@@ -176,7 +176,7 @@ export class IncomeDocumentService {
 
         await CommandTicket.update({
             status: TicketStatus.ACCEPTED
-        }, { where: { id: commandTicket.id }})
+        }, { where: { id: commandTicket.id } })
 
         return { result: true }
     }
@@ -219,7 +219,7 @@ export class IncomeDocumentService {
         await CommandTicket.update({
             status: TicketStatus.REFUSED,
             returnReason: returnReason
-        }, { where: { id: commandTicket.id }})
+        }, { where: { id: commandTicket.id } })
 
         return { result: true }
     }
@@ -259,6 +259,33 @@ export class IncomeDocumentService {
             draftUrl: body.fileName,
             sendFrom: specialist.room?.name || null,
         })
+
+        return { result: true }
+    }
+
+    async acceptDraftProcess(leaderId: number, documentId: number) {
+        const document = await IncomeDocument.findOne({
+            where: {
+                id: documentId
+            }
+        })
+
+        if (!document) throw new NotFoundException('Document not found')
+
+        if (document.leaderId !== leaderId) throw new ForbiddenException('You are not in charge of this document')
+
+        if (document.status !== IncomeStatus.WAITING_FOR_APPROVING_DRAFT) throw new BadRequestException('Status of document is not waiting for approving draft')
+
+        await IncomeDocument.update(
+            {
+                status: IncomeStatus.APPROVED_DRAFT
+            },
+            {
+                where: {
+                    id: documentId
+                }
+            }
+        )
 
         return { result: true }
     }

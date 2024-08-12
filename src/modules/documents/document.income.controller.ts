@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { IncomeDocumentService } from "./document.income.service";
-import { AcceptRequestProcessDto, CompleteProcessDto, DenyRequestProcessDto, GetAllIncomeDocumentsRequest, PresentToLeaderRequest, RequestProcessDto, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
+import { AcceptDraftProcessDto, AcceptRequestProcessDto, CompleteProcessDto, DenyDraftProcessDto, DenyRequestProcessDto, GetAllIncomeDocumentsRequest, PresentToLeaderRequest, RequestProcessDto, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { v4 as uuidv4 } from 'uuid';
@@ -137,5 +137,19 @@ export class IncomeDocumentController {
       specialistId: userId,
       ...body
     })
+  }
+
+  @Post('/draft/accept')
+  @ApiOperation({ summary: 'Specialist accept the request process '})
+  @LeaderAuth()
+  async acceptDraftProcess(@Body() body: AcceptDraftProcessDto, @CurrentUserId() userId: number) {
+    return this.incomeService.acceptDraftProcess(userId, body.documentId)
+  }
+
+  @Post('/draft/deny')
+  @ApiOperation({ summary: 'Specialist accept the request process '})
+  @SpecialistAuth()
+  async denyDraftProcess(@Body() body: DenyDraftProcessDto, @CurrentUserId() userId: number) {
+    // return this.incomeService.denyDraftProcess(userId, body)
   }
 }
