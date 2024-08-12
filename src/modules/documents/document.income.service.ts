@@ -45,7 +45,7 @@ export class IncomeDocumentService {
         return { rows, count }
     }
 
-    async presentToLeader(body: PresentToLeaderRequest) {
+    async presentToLeader(body: PresentToLeaderRequest, officeClerkId: number) {
         const leader = await User.findOne({
             where: {
                 id: body.leaderId,

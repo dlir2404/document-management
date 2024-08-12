@@ -50,4 +50,17 @@ export class UsersService {
             count
         }
     }
+
+    async getAllUserByRole(role: UserRole) {
+        const { count, rows } = await User.findAndCountAll({
+            where: {
+                role: role
+            }
+        })
+
+        return {
+            rows,
+            count
+        }
+    }
 }

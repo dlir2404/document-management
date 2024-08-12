@@ -6,7 +6,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
-import { CurrentUserId, LeaderAuth, SpecialistAuth } from "src/shared/decorators";
+import { CurrentUserId, LeaderAuth, OfficeClerkAuth, SpecialistAuth } from "src/shared/decorators";
 
 @Controller('/income')
 @ApiTags('Income Documents')
@@ -61,12 +61,14 @@ export class IncomeDocumentController {
   }
 
   @Post('/present-to-leader')
+  @OfficeClerkAuth()
   @ApiOperation({ summary: 'Office clerk present document to leader'})
-  async presentToLeader(@Body() body: PresentToLeaderRequest) {
-    return await this.incomeService.presentToLeader(body)
+  async presentToLeader(@Body() body: PresentToLeaderRequest, @CurrentUserId() userId: number) {
+    return await this.incomeService.presentToLeader(body, userId)
   }
 
   @Delete(':id')
+  @OfficeClerkAuth()
   async deleteDocument(@Param('id') id: number) {
     return this.incomeService.deleteDocument(id)
   }
