@@ -254,12 +254,6 @@ export class IncomeDocumentService {
             }
         )
 
-        await GoingDocument.create({
-            abstractDraft: body.abstract,
-            draftUrl: body.fileName,
-            sendFrom: specialist.room?.name || null,
-        })
-
         return { result: true }
     }
 
@@ -267,7 +261,8 @@ export class IncomeDocumentService {
         const document = await IncomeDocument.findOne({
             where: {
                 id: documentId
-            }
+            },
+            include: ['mainProcessor']
         })
 
         if (!document) throw new NotFoundException('Document not found')
@@ -286,6 +281,15 @@ export class IncomeDocumentService {
                 }
             }
         )
+
+        
+        //dang lam toi day
+        await GoingDocument.create({
+            abstractDraft: document.abstract,
+            draftUrl: document.draftUrl,
+            sendFrom: document.mainProcessor.room?.name || null,
+            leaderId: document.leaderId
+        })
 
         return { result: true }
     }
