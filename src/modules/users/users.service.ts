@@ -3,6 +3,7 @@ import { User, UserRole } from 'src/database/models';
 import * as bcrypt from 'bcrypt';
 import { SALT_OR_ROUNDS } from 'src/shared/constant';
 import { GetAllUsersRequest } from './dtos/admin-get-users.dto';
+import { WhereOptions } from 'sequelize';
 
 @Injectable()
 export class UsersService {
@@ -51,11 +52,17 @@ export class UsersService {
         }
     }
 
-    async getAllUserByRole(role: UserRole) {
+    async getAllUserByRole(role: string, roomId?: number) {
+        let where:  WhereOptions<any> = {
+            role
+        }
+
+        if (roomId) {
+            where.roomId = roomId
+        }
+
         const { count, rows } = await User.findAndCountAll({
-            where: {
-                role: role
-            }
+            where: where
         })
 
         return {
