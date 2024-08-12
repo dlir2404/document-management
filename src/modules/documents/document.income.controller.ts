@@ -148,8 +148,8 @@ export class IncomeDocumentController {
 
   @Post('/draft/deny')
   @ApiOperation({ summary: 'Specialist accept the request process '})
-  @SpecialistAuth()
+  @LeaderAuth()
   async denyDraftProcess(@Body() body: DenyDraftProcessDto, @CurrentUserId() userId: number) {
-    // return this.incomeService.denyDraftProcess(userId, body)
+    return this.incomeService.denyDraftProcess(userId, body)
   }
 }

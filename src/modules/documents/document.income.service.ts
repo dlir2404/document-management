@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { GetAllIncomeDocumentsRequest, ICompleteProcess, IUploadIncomeDocument, PresentToLeaderRequest, RequestProcessDto } from "./dtos/income-document.dto";
-import { CommandTicket, GoingDocument, IncomeDocument, IncomeStatus, TicketStatus, User, UserRole } from "src/database/models";
+import { DenyDraftProcessDto, GetAllIncomeDocumentsRequest, ICompleteProcess, IUploadIncomeDocument, PresentToLeaderRequest, RequestProcessDto } from "./dtos/income-document.dto";
+import { CommandDraftTicket, CommandTicket, GoingDocument, IncomeDocument, IncomeStatus, TicketStatus, User, UserRole } from "src/database/models";
 import { Op, Sequelize, where, WhereOptions } from "sequelize";
 
 @Injectable()
@@ -286,6 +286,51 @@ export class IncomeDocumentService {
                 }
             }
         )
+
+        return { result: true }
+    }
+
+    async denyDraftProcess(leaderId: number, body: DenyDraftProcessDto) {
+        const document = await IncomeDocument.findOne({
+            where: {
+                id: body.documentId
+            }
+        })
+
+        if (!document) throw new NotFoundException('Document not found')
+
+        if (document.leaderId !== leaderId) throw new ForbiddenException('You are not in charge of this document')
+
+        if (document.status !== IncomeStatus.WAITING_FOR_APPROVING_DRAFT) throw new BadRequestException('Status of document is not waiting for approving draft')
+
+        //cho nay
+        const mainProcessor = await User.findOne({
+            where: {
+                id: body.specialistId,
+                role: UserRole.SPECIALIST
+            }
+        })
+
+        if (!mainProcessor) {
+            throw new NotFoundException('Main processor not found')
+        }
+
+        await CommandDraftTicket.create({
+            incomeDocumentId: body.documentId,
+            mainProcessorId: body.specialistId,
+            deadline: body.deadline,
+            processDirection: body.processDirection,
+        })
+
+        await IncomeDocument.update(
+            {
+                status: IncomeStatus.ASSIGNED_FOR_PROCESS,
+                mainProcessorId: body.specialistId,
+            },
+            {
+                where: { id: body.documentId },
+            }
+        );
 
         return { result: true }
     }
