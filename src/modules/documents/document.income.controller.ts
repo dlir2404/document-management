@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { IncomeDocumentService } from "./document.income.service";
-import { AcceptDraftProcessDto, AcceptRequestProcessDto, CompleteProcessDto, DenyDraftProcessDto, DenyRequestProcessDto, GetAllIncomeDocumentsRequest, PresentToLeaderRequest, RequestProcessDto, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
+import { AcceptDraftProcessDto, AcceptRequestProcessDto, CompleteProcessDto, DenyDraftProcessDto, DenyRequestProcessDto, GetAllIncomeDocumentsRequest, GetIncomeDocumentTicketRequest, PresentToLeaderRequest, RequestProcessDto, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { v4 as uuidv4 } from 'uuid';
@@ -58,6 +58,11 @@ export class IncomeDocumentController {
   @Get('/all')
   async getIncomeDocuments(@Query() request: GetAllIncomeDocumentsRequest) {
     return this.incomeService.getIncomeDocuments(request)
+  }
+
+  @Get('/document/ticket')
+  async getIncomeDocumentTicket(@Query() request: GetIncomeDocumentTicketRequest) {
+    return this.incomeService.getIncomeDocumentTicket(request.id)
   }
 
   @Post('/present-to-leader')

@@ -14,6 +14,36 @@ export class IncomeDocumentService {
         return { result: true }
     }
 
+    async getIncomeDocumentTicket(documentId: number) {
+        const document = await IncomeDocument.findOne({
+            where: {
+                id: documentId
+            }
+        })
+
+        const draftTicket = await CommandDraftTicket.findOne({
+            where: {
+                incomeDocumentId: documentId
+            }
+        })
+
+        if (draftTicket)  {
+            return {
+                draftTicket: draftTicket
+            }
+        }
+
+        const commandTicket = await CommandTicket.findOne({
+            where: {
+                incomeDocumentId: documentId
+            }
+        })
+
+        return {
+            commandTicket: commandTicket
+        }
+    }
+
     async getIncomeDocuments(params: GetAllIncomeDocumentsRequest) {
 
         let where: WhereOptions<IncomeDocument> = {}
