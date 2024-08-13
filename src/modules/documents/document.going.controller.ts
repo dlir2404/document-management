@@ -86,7 +86,7 @@ export class GoingDocumentController {
 
   @Post('/document/accept')
   @ApiOperation({ summary: 'Specialist accept the request process ' })
-  @SpecialistAuth()
+  @LeaderAuth()
   async acceptGoingDocument(@Body() body: AcceptGoingDocumentDto, @CurrentUserId() userId: number) {
     return this.goingService.acceptGoingDocument(userId, body.documentId)
   }
