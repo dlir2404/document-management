@@ -220,4 +220,20 @@ export class GoingDocumentService {
 
         return { result: true }
     }
+
+    async publishGoingDocument(officeClerkId: number, documentId: number) {
+        const document = await GoingDocument.findOne({
+            where: {
+                id: documentId
+            }
+        })
+
+        if (!document) throw new NotFoundException('Document not found')
+
+        await document.update({
+            status: GoingStatus.PUBLISHED
+        })
+
+        return { result: true }
+    }
 }

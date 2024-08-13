@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Get, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { CurrentUserId, LeaderAuth, SpecialistAuth } from "src/shared/decorators";
+import { CurrentUserId, LeaderAuth, OfficeClerkAuth, SpecialistAuth } from "src/shared/decorators";
 import { AcceptRequestProcessDto, CompleteProcessGoingDto, DenyRequestProcessDto, RequestProcessDto } from "./dtos/income-document.dto";
 import { GoingDocumentService } from "./document.going.service";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -89,5 +89,12 @@ export class GoingDocumentController {
   @LeaderAuth()
   async acceptGoingDocument(@Body() body: AcceptGoingDocumentDto, @CurrentUserId() userId: number) {
     return this.goingService.acceptGoingDocument(userId, body.documentId)
+  }
+
+  @Post('/document/publish')
+  @ApiOperation({ summary: 'Specialist accept the request process ' })
+  @OfficeClerkAuth()
+  async publishGoingDocument(@Body() body: AcceptGoingDocumentDto, @CurrentUserId() userId: number) {
+    return this.goingService.publishGoingDocument(userId, body.documentId)
   }
 }
