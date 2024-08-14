@@ -1,5 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { ICompleteProcessGoing, RequestProcessDto } from "./dtos/income-document.dto";
+import { ICompleteProcessGoing, ISearch, RequestProcessDto } from "./dtos/income-document.dto";
 import { GoingDocument, GoingStatus, ProcessTicket, TicketStatus, User, UserRole } from "src/database/models";
 import { Op, where, WhereOptions } from "sequelize";
 import { GetAllGoingDocumentsRequest } from "./dtos/going-document.dto";
@@ -36,6 +36,38 @@ export class GoingDocumentService {
         })
 
         return { rows, count }
+    }
+
+    async searchDocument({ query, page, pageSize }: ISearch) {
+        let where: WhereOptions<GoingDocument> = {}
+
+        if (query) {
+            where = {
+                [Op.or]: [
+                    { number: { [Op.like]: `%${query}%` } },
+                    { signer: { [Op.like]: `%${query}%` } },
+                    { sendFrom: { [Op.like]: `%${query}%` } },
+                    { sendTo: { [Op.like]: `%${query}%` } },
+                    { thematic: { [Op.like]: `%${query}%` } },
+                    { category: { [Op.like]: `%${query}%` } },
+                    { abstract: { [Op.like]: `%${query}%` } },
+                    { abstractDraft: { [Op.like]: `%${query}%` } },
+                ]
+            };
+        }
+
+        const { rows, count } = await GoingDocument.findAndCountAll({
+            include: ['leader', 'mainProcessor'],
+            order: [['id', 'DESC']],
+            limit: +pageSize,
+            offset: (page - 1) * +pageSize,
+            where: where
+        })
+
+        return {
+            rows,
+            count
+        }
     }
 
     async requestProcess(body: RequestProcessDto, leaderId: number) {
@@ -117,7 +149,7 @@ export class GoingDocumentService {
 
         await ProcessTicket.update({
             status: TicketStatus.ACCEPTED
-        }, { where: { id: processTicket.id }})
+        }, { where: { id: processTicket.id } })
 
         return { result: true }
     }
@@ -160,7 +192,7 @@ export class GoingDocumentService {
         await ProcessTicket.update({
             status: TicketStatus.REFUSED,
             returnReason: returnReason
-        }, { where: { id: processTicket.id }})
+        }, { where: { id: processTicket.id } })
 
         return { result: true }
     }

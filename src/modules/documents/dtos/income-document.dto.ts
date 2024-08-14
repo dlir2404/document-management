@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { IsArray, IsDefined, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { EmergencyLevel, IncomeStatus } from "src/database/models";
-import { DateNPageDTO } from "src/shared/type";
+import { DateNPageDTO, PaginationDTO } from "src/shared/type";
 
 export const UploadIncomeDocumentRequest = {
     file: {
@@ -122,6 +122,15 @@ export class GetAllIncomeDocumentsRequest extends DateNPageDTO {
     @IsOptional()
     @IsEnum(IncomeStatus, { each: true }) // Xác thực rằng mỗi phần tử của mảng là một giá trị trong enum
     status: IncomeStatus[];
+}
+
+export class ISearch extends PaginationDTO {
+    @ApiProperty({
+        type: String,
+        required: false
+    })
+    @IsString()
+    query: string;
 }
 
 export class GetIncomeDocumentTicketRequest {

@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CurrentUserId, LeaderAuth, OfficeClerkAuth, SpecialistAuth } from "src/shared/decorators";
-import { AcceptRequestProcessDto, CompleteProcessGoingDto, DenyRequestProcessDto, RequestProcessDto } from "./dtos/income-document.dto";
+import { AcceptRequestProcessDto, CompleteProcessGoingDto, DenyRequestProcessDto, ISearch, RequestProcessDto } from "./dtos/income-document.dto";
 import { GoingDocumentService } from "./document.going.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
@@ -96,5 +96,11 @@ export class GoingDocumentController {
   @OfficeClerkAuth()
   async publishGoingDocument(@Body() body: AcceptGoingDocumentDto, @CurrentUserId() userId: number) {
     return this.goingService.publishGoingDocument(userId, body.documentId)
+  }
+
+  @Get('/search')
+  @ApiOperation({ summary: 'Search document' })
+  async searchDocument(@Query() query: ISearch) {
+    return this.goingService.searchDocument(query)
   }
 }

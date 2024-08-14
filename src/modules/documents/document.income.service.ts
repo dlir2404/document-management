@@ -1,5 +1,5 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { DenyDraftProcessDto, GetAllIncomeDocumentsRequest, ICompleteProcess, IUploadIncomeDocument, PresentToLeaderRequest, RequestProcessDto } from "./dtos/income-document.dto";
+import { DenyDraftProcessDto, GetAllIncomeDocumentsRequest, ICompleteProcess, ISearch, IUploadIncomeDocument, PresentToLeaderRequest, RequestProcessDto } from "./dtos/income-document.dto";
 import { CommandDraftTicket, CommandTicket, GoingDocument, IncomeDocument, IncomeStatus, TicketStatus, User, UserRole } from "src/database/models";
 import { Op, Sequelize, where, WhereOptions } from "sequelize";
 
@@ -12,6 +12,38 @@ export class IncomeDocumentService {
         })
 
         return { result: true }
+    }
+
+    async searchDocument({ query, page, pageSize }: ISearch) {
+        let where: WhereOptions<IncomeDocument> = {}
+
+        if (query) {
+            where = {
+                [Op.or]: [
+                    { originalNumber: { [Op.like]: `%${query}%` } },
+                    { number: { [Op.like]: `%${query}%` } },
+                    { signer: { [Op.like]: `%${query}%` } },
+                    { sendFrom: { [Op.like]: `%${query}%` } },
+                    { sendTo: { [Op.like]: `%${query}%` } },
+                    { thematic: { [Op.like]: `%${query}%` } },
+                    { category: { [Op.like]: `%${query}%` } },
+                    { abstract: { [Op.like]: `%${query}%` } },
+                ]
+            };
+        }
+
+        const { rows, count } = await IncomeDocument.findAndCountAll({
+            include: ['leader', 'mainProcessor'],
+            order: [['id', 'DESC']],
+            limit: +pageSize,
+            offset: (page - 1) * +pageSize,
+            where: where
+        })
+
+        return {
+            rows,
+            count
+        }
     }
 
     async getIncomeDocumentTicket(documentId: number) {
@@ -27,7 +59,7 @@ export class IncomeDocumentService {
             }
         })
 
-        if (draftTicket)  {
+        if (draftTicket) {
             return {
                 draftTicket: draftTicket
             }
@@ -312,7 +344,7 @@ export class IncomeDocumentService {
             }
         )
 
-        
+
         //dang lam toi day
         await GoingDocument.create({
             abstractDraft: document.abstract,

@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { IncomeDocumentService } from "./document.income.service";
-import { AcceptDraftProcessDto, AcceptRequestProcessDto, CompleteProcessDto, DenyDraftProcessDto, DenyRequestProcessDto, GetAllIncomeDocumentsRequest, GetIncomeDocumentTicketRequest, PresentToLeaderRequest, RequestProcessDto, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
+import { AcceptDraftProcessDto, AcceptRequestProcessDto, CompleteProcessDto, DenyDraftProcessDto, DenyRequestProcessDto, GetAllIncomeDocumentsRequest, GetIncomeDocumentTicketRequest, ISearch, PresentToLeaderRequest, RequestProcessDto, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { v4 as uuidv4 } from 'uuid';
@@ -67,7 +67,7 @@ export class IncomeDocumentController {
 
   @Post('/present-to-leader')
   @OfficeClerkAuth()
-  @ApiOperation({ summary: 'Office clerk present document to leader'})
+  @ApiOperation({ summary: 'Office clerk present document to leader' })
   async presentToLeader(@Body() body: PresentToLeaderRequest, @CurrentUserId() userId: number) {
     return await this.incomeService.presentToLeader(body, userId)
   }
@@ -80,20 +80,20 @@ export class IncomeDocumentController {
 
   @Post('request-process')
   @LeaderAuth()
-  @ApiOperation({ summary: 'Leader request specialist to process the document '})
+  @ApiOperation({ summary: 'Leader request specialist to process the document ' })
   async requestProcess(@Body() body: RequestProcessDto, @CurrentUserId() userId: number) {
     return this.incomeService.requestProcess(body, userId)
   }
 
   @Post('/request-process/accept')
-  @ApiOperation({ summary: 'Specialist accept the request process '})
+  @ApiOperation({ summary: 'Specialist accept the request process ' })
   @SpecialistAuth()
   async acceptRequestProcess(@Body() body: AcceptRequestProcessDto, @CurrentUserId() userId: number) {
     return this.incomeService.acceptRequestProcess(userId, body.documentId)
   }
 
   @Post('/request-process/deny')
-  @ApiOperation({ summary: 'Specialist accept the request process '})
+  @ApiOperation({ summary: 'Specialist accept the request process ' })
   @SpecialistAuth()
   async denyRequestProcess(@Body() body: DenyRequestProcessDto, @CurrentUserId() userId: number) {
     return this.incomeService.denyRequestProcess(userId, body.documentId, body.returnReason)
@@ -145,16 +145,22 @@ export class IncomeDocumentController {
   }
 
   @Post('/draft/accept')
-  @ApiOperation({ summary: 'Specialist accept the request process '})
+  @ApiOperation({ summary: 'Specialist accept the request process ' })
   @LeaderAuth()
   async acceptDraftProcess(@Body() body: AcceptDraftProcessDto, @CurrentUserId() userId: number) {
     return this.incomeService.acceptDraftProcess(userId, body.documentId)
   }
 
   @Post('/draft/deny')
-  @ApiOperation({ summary: 'Specialist accept the request process '})
+  @ApiOperation({ summary: 'Specialist accept the request process ' })
   @LeaderAuth()
   async denyDraftProcess(@Body() body: DenyDraftProcessDto, @CurrentUserId() userId: number) {
     return this.incomeService.denyDraftProcess(userId, body)
+  }
+
+  @Get('/search')
+  @ApiOperation({ summary: 'Search document' })
+  async searchDocument(@Query() query: ISearch) {
+    return this.incomeService.searchDocument(query)
   }
 }
