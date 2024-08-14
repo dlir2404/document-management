@@ -27,6 +27,23 @@ export class GoingDocumentService {
             }
         }
 
+        if (params.query) {
+            where = {
+                ...where,
+                [Op.or]: [
+                    { number: { [Op.like]: `%${params.query}%` } },
+                    { signer: { [Op.like]: `%${params.query}%` } },
+                    { sendFrom: { [Op.like]: `%${params.query}%` } },
+                    { sendTo: { [Op.like]: `%${params.query}%` } },
+                    { thematic: { [Op.like]: `%${params.query}%` } },
+                    { category: { [Op.like]: `%${params.query}%` } },
+                    { abstract: { [Op.like]: `%${params.query}%` } },
+                    { abstractDraft: { [Op.like]: `%${params.query}%` } },
+                ]
+
+            }
+        }
+
         const { rows, count } = await GoingDocument.findAndCountAll({
             include: ['leader', 'mainProcessor'],
             order: [['id', 'DESC']],

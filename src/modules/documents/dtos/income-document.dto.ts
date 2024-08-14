@@ -122,6 +122,13 @@ export class GetAllIncomeDocumentsRequest extends DateNPageDTO {
     @IsOptional()
     @IsEnum(IncomeStatus, { each: true }) // Xác thực rằng mỗi phần tử của mảng là một giá trị trong enum
     status: IncomeStatus[];
+
+    @ApiProperty({
+        type: String,
+        required: false
+    })
+    @IsString()
+    query: string;
 }
 
 export class ISearch extends PaginationDTO {

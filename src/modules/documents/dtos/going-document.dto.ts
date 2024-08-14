@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsEnum, IsOptional } from "class-validator";
+import { IsArray, IsEnum, IsOptional, IsString } from "class-validator";
 import { GoingStatus } from "src/database/models";
 import { DateNPageDTO } from "src/shared/type";
 
@@ -20,4 +20,11 @@ export class GetAllGoingDocumentsRequest extends DateNPageDTO {
     @IsOptional()
     @IsEnum(GoingStatus, { each: true }) // Xác thực rằng mỗi phần tử của mảng là một giá trị trong enum
     status: GoingStatus[];
+
+    @ApiProperty({
+        type: String,
+        required: false
+    })
+    @IsString()
+    query: string;
 }
