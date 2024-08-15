@@ -427,4 +427,20 @@ export class IncomeDocumentService {
 
         return { result: true }
     }
+
+    async getLastTicket(type: string) {
+        if (type === 'command') {
+            return CommandTicket.findOne({
+                order: [['id', 'desc']]
+            })
+        }
+
+        if (type === 'command-draft') {
+            return CommandDraftTicket.findOne({
+                order: [['id', 'desc']]
+            })
+        }
+
+        throw new BadRequestException('Invalid ticket type')
+    }
 }

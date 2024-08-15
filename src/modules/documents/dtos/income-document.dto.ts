@@ -144,6 +144,15 @@ export class ISearch extends PaginationDTO {
     query: string;
 }
 
+export class LastIncomeTicketRequest {
+    @ApiProperty({
+        type: String,
+        required: false
+    })
+    @IsString()
+    type: string;
+}
+
 export class GetIncomeDocumentTicketRequest {
     @ApiProperty({
         type: Number,

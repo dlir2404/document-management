@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { IncomeDocumentService } from "./document.income.service";
-import { AcceptDraftProcessDto, AcceptRequestProcessDto, CompleteProcessDto, DenyDraftProcessDto, DenyRequestProcessDto, GetAllIncomeDocumentsRequest, GetIncomeDocumentTicketRequest, ISearch, PresentToLeaderRequest, RequestProcessDto, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
+import { AcceptDraftProcessDto, AcceptRequestProcessDto, CompleteProcessDto, DenyDraftProcessDto, DenyRequestProcessDto, GetAllIncomeDocumentsRequest, GetIncomeDocumentTicketRequest, ISearch, LastIncomeTicketRequest, PresentToLeaderRequest, RequestProcessDto, UploadIncomeDocumentRequest } from "./dtos/income-document.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { v4 as uuidv4 } from 'uuid';
@@ -162,5 +162,11 @@ export class IncomeDocumentController {
   @ApiOperation({ summary: 'Search document' })
   async searchDocument(@Query() query: ISearch) {
     return this.incomeService.searchDocument(query)
+  }
+
+  @Get('/last-ticket')
+  @ApiOperation({ summary: 'Get last ticket of document' })
+  async getLastTicket(@Query() query: LastIncomeTicketRequest) {
+    return this.incomeService.getLastTicket(query.type)
   }
 }

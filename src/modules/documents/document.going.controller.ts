@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { CurrentUserId, LeaderAuth, OfficeClerkAuth, SpecialistAuth } from "src/shared/decorators";
-import { AcceptRequestProcessDto, CompleteProcessGoingDto, DenyRequestProcessDto, ISearch, RequestProcessDto } from "./dtos/income-document.dto";
+import { AcceptRequestProcessDto, CompleteProcessGoingDto, DenyRequestProcessDto, ISearch, LastIncomeTicketRequest, RequestProcessDto } from "./dtos/income-document.dto";
 import { GoingDocumentService } from "./document.going.service";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
@@ -109,5 +109,11 @@ export class GoingDocumentController {
   @ApiOperation({ summary: 'Search document' })
   async searchDocument(@Query() query: ISearch) {
     return this.goingService.searchDocument(query)
+  }
+
+  @Get('/last-ticket')
+  @ApiOperation({ summary: 'Get last ticket of document' })
+  async getLastTicket(@Query() query: LastIncomeTicketRequest) {
+    return this.goingService.getLastTicket(query.type)
   }
 }

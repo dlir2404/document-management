@@ -360,4 +360,20 @@ export class GoingDocumentService {
 
         return { result: true }
     }
+
+    async getLastTicket(type: string) {
+        if (type === 'process') {
+            return ProcessTicket.findOne({
+                order: [['id', 'desc']]
+            })
+        }
+
+        if (type === 'process-edit') {
+            return ProcessEditTicket.findOne({
+                order: [['id', 'desc']]
+            })
+        }
+
+        throw new BadRequestException('Invalid ticket type')
+    }
 }
