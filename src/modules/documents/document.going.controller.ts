@@ -102,7 +102,7 @@ export class GoingDocumentController {
   @ApiOperation({ summary: 'Specialist accept the request process ' })
   @OfficeClerkAuth()
   async publishGoingDocument(@Body() body: AcceptGoingDocumentDto, @CurrentUserId() userId: number) {
-    return this.goingService.publishGoingDocument(userId, body.documentId)
+    return this.goingService.publishGoingDocument(userId, body)
   }
 
   @Get('/search')

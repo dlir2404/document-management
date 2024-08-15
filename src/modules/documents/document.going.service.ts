@@ -2,7 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { ICompleteProcessGoing, ISearch, RequestProcessDto } from "./dtos/income-document.dto";
 import { GoingDocument, GoingStatus, ProcessEditTicket, ProcessTicket, TicketStatus, User, UserRole } from "src/database/models";
 import { Op, where, WhereOptions } from "sequelize";
-import { DenyDocumentProcessDto, GetAllGoingDocumentsRequest } from "./dtos/going-document.dto";
+import { AcceptGoingDocumentDto, DenyDocumentProcessDto, GetAllGoingDocumentsRequest } from "./dtos/going-document.dto";
 
 @Injectable()
 export class GoingDocumentService {
@@ -321,17 +321,18 @@ export class GoingDocumentService {
         return { result: true }
     }
 
-    async publishGoingDocument(officeClerkId: number, documentId: number) {
+    async publishGoingDocument(officeClerkId: number, body: AcceptGoingDocumentDto) {
         const document = await GoingDocument.findOne({
             where: {
-                id: documentId
+                id: body.documentId
             }
         })
 
         if (!document) throw new NotFoundException('Document not found')
 
         await document.update({
-            status: GoingStatus.PUBLISHED
+            status: GoingStatus.PUBLISHED,
+            number: body.number
         })
 
         return { result: true }

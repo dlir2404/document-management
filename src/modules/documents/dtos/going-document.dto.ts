@@ -8,6 +8,11 @@ export class AcceptGoingDocumentDto {
         type: Number
     })
     documentId: number
+
+    @ApiProperty({
+        type: String
+    })
+    number: string
 }
 
 export class GetAllGoingDocumentsRequest extends DateNPageDTO {
