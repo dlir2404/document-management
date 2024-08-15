@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { User, UserRole } from 'src/database/models';
+import { User } from 'src/database/models';
 import * as bcrypt from 'bcrypt';
 import { SALT_OR_ROUNDS } from 'src/shared/constant';
 import { GetAllUsersRequest } from './dtos/admin-get-users.dto';
 import { WhereOptions } from 'sequelize';
+import { IUser } from './dtos/admin-create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -11,27 +12,22 @@ export class UsersService {
         return await User.findOne({ where: { username: username } })
     }
 
-    async createUser({
-        username,
-        password,
-        role
-    }: {
-        username: string,
-        password: string,
-        role: UserRole
-    }) {
-        const existUser = await this.findOne(username);
+    async createUser(body: IUser) {
+        const existUser = await this.findOne(body.username);
 
         if (existUser) {
             throw new BadRequestException('User exists')
         }
 
+        const { password, ...rest } = body
+
         const hashPassword = await bcrypt.hash(password, SALT_OR_ROUNDS)
 
+
+
         await User.create({
-            username,
+            ...rest,
             password: hashPassword,
-            role
         })
 
         return { result: true }
@@ -53,7 +49,7 @@ export class UsersService {
     }
 
     async getAllUserByRole(role: string, roomId?: number) {
-        let where:  WhereOptions<any> = {
+        let where: WhereOptions<any> = {
             role
         }
 

@@ -12,6 +12,11 @@ export enum UserRole {
     OFFICE_CLERK = 4
 }
 
+export enum UserGender {
+    MALE = 'MALE',
+    FEMALE = 'FEMALE'
+}
+
 @Table
 export class User extends Model {
     @AutoIncrement
@@ -24,6 +29,30 @@ export class User extends Model {
 
     @Column
     password: string;
+
+    @Column
+    userNumber: string;
+
+    @Column
+    fullName: string;
+
+    @Column
+    title: string;
+
+    @Column
+    gender: UserGender;
+
+    @Column
+    dateOfBirth: Date;
+
+    @Column
+    address: string;
+
+    @Column
+    phone: string;
+
+    @Column
+    email: string;
 
     @Column
     role: UserRole;
