@@ -7,12 +7,54 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { AcceptGoingDocumentDto, DenyDocumentProcessDto, GetAllGoingDocumentsRequest, GetGoingDocumentTicketRequest } from "./dtos/going-document.dto";
+import { AcceptGoingDocumentDto, DenyDocumentProcessDto, GetAllGoingDocumentsRequest, GetGoingDocumentTicketRequest, UploadDraftDocumentRequest } from "./dtos/going-document.dto";
 
 @Controller('/going')
 @ApiTags('Going Documents')
 export class GoingDocumentController {
   constructor(private readonly goingService: GoingDocumentService) { }
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file', {
+    storage: diskStorage({
+      destination: "./uploads",
+      filename: (req, file, cb) => {
+        const ext = path.extname(file.originalname);
+        const baseName = path.basename(file.originalname, ext);
+
+        const newFileName = `${baseName}-@uuid@-${uuidv4()}${ext}`;
+
+        cb(null, newFileName);
+      }
+    }),
+    fileFilter: (req, file, cb) => {
+      if (file.mimetype !== 'application/pdf') {
+        return cb(new BadRequestException('Only PDF files are allowed!'), false);
+      }
+      cb(null, true);
+    }
+  }))
+  @ApiOperation({ summary: 'Upload a draft' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'File and additional parameters',
+    type: 'multipart/form-data',
+    schema: {
+      type: 'object',
+      properties: {
+        ...UploadDraftDocumentRequest
+      },
+    },
+  })
+  async uploadFile(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: any
+  ) {
+    return await this.goingService.upload({
+      fileName: file?.filename,
+      ...body
+    })
+  }
+
   @Get('/all')
   async getIncomeDocuments(@Query() request: GetAllGoingDocumentsRequest) {
     return this.goingService.getGoingDocuments(request)

@@ -2,10 +2,19 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 import { ICompleteProcessGoing, ISearch, RequestProcessDto } from "./dtos/income-document.dto";
 import { GoingDocument, GoingStatus, ProcessEditTicket, ProcessTicket, Room, TicketStatus, User, UserRole } from "src/database/models";
 import { Op, where, WhereOptions } from "sequelize";
-import { AcceptGoingDocumentDto, DenyDocumentProcessDto, GetAllGoingDocumentsRequest } from "./dtos/going-document.dto";
+import { AcceptGoingDocumentDto, DenyDocumentProcessDto, GetAllGoingDocumentsRequest, IUploadGoingDocumentDraft } from "./dtos/going-document.dto";
 
 @Injectable()
 export class GoingDocumentService {
+
+    async upload(body: IUploadGoingDocumentDraft) {
+        await GoingDocument.create({
+            ...body,
+            draftUrl: body.fileName
+        })
+
+        return { result: true }
+    }
 
     async getGoingDocuments(params: GetAllGoingDocumentsRequest) {
 

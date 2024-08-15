@@ -78,3 +78,26 @@ export class DenyDocumentProcessDto {
     @IsString()
     deadline: string;
 }
+
+export const UploadDraftDocumentRequest = {
+    file: {
+        type: 'string',
+        format: 'binary',
+    },
+    sendFrom: {
+        type: 'string'
+    },
+    category: {
+        type: 'string'
+    },
+    abstractDraft: {
+        type: 'string'
+    }
+}
+
+export interface IUploadGoingDocumentDraft {
+    fileName?: string;
+    sendFrom?: string;
+    category?: string;
+    abstractDraft?: string;
+}
