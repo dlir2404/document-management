@@ -1,6 +1,6 @@
 import { AutoIncrement, Column, DataType, ForeignKey, BelongsTo, HasMany, Model, PrimaryKey, Table, BelongsToMany } from "sequelize-typescript";
 import { User } from "./user.model";
-import { Collaborating } from "./collaborating.model";
+import { GoingDocumentCollaborator } from "./going-collaborating.model";
 
 enum EmergencyLevel {
     NORMAL = 'normal',
@@ -59,6 +59,11 @@ export class GoingDocument extends Model {
     emergencyLevel: EmergencyLevel;
 
     @Column({
+        type: DataType.DATE
+    })
+    deadline: Date;
+
+    @Column({
         type: DataType.STRING
     })
     thematic: string; //chuyên đề
@@ -81,7 +86,7 @@ export class GoingDocument extends Model {
     @BelongsTo(() => User, 'mainProcessorId')
     mainProcessor: User;
 
-    @BelongsToMany(() => User, () => Collaborating)
+    @BelongsToMany(() => User, () => GoingDocumentCollaborator)
     collaborators: User[];
 
     @Column({

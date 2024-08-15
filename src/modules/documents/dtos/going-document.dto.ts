@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsEnum, IsOptional, IsString } from "class-validator";
+import { IsArray, IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
 import { GoingStatus } from "src/database/models";
 import { DateNPageDTO } from "src/shared/type";
 
@@ -27,4 +27,41 @@ export class GetAllGoingDocumentsRequest extends DateNPageDTO {
     })
     @IsString()
     query: string;
+}
+
+
+export class DenyDocumentProcessDto {
+    @ApiProperty({
+        type: Number
+    })
+    documentId: Number
+
+    @ApiProperty({
+        type: Number
+    })
+    specialistId: Number
+
+    @ApiProperty({
+        type: Number,
+        isArray: true,
+        required: false
+    })
+    @IsArray()
+    @IsOptional()
+    @IsNumber({}, { each: true })
+    collaborators: number[];
+
+    @ApiProperty({
+        type: String
+    })
+    processDirection: string
+
+    @ApiProperty({
+        example: '2023-07-10',
+        description: 'Từ ngày',
+        required: false,
+    })
+    @IsOptional()
+    @IsString()
+    deadline: string;
 }

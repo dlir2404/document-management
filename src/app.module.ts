@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { Collaborating, IncomeDocument, Room, User, CommandTicket, GoingDocument, ProcessTicket, CommandDraftTicket } from './database/models';
+import { IncomeDocumentCollaborator, GoingDocumentCollaborator, IncomeDocument, Room, User, CommandTicket, GoingDocument, ProcessTicket, CommandDraftTicket, ProcessEditTicket } from './database/models';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { FileModule } from './modules/files/file.module';
@@ -30,9 +30,9 @@ import { DocumentsModule } from './modules/documents/documents.module';
         database: configService.get<string>('DATABASE_NAME'),
         autoLoadModels: true,
         synchronize: true,
-        models: [User, Room, IncomeDocument, Collaborating, CommandTicket, CommandDraftTicket, GoingDocument, ProcessTicket],
+        models: [User, Room, IncomeDocument, IncomeDocumentCollaborator, GoingDocumentCollaborator, CommandTicket, CommandDraftTicket, GoingDocument, ProcessTicket, ProcessEditTicket],
       })
     }),
   ],
 })
-export class AppModule {}
+export class AppModule { }

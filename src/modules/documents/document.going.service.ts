@@ -1,8 +1,8 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { ICompleteProcessGoing, ISearch, RequestProcessDto } from "./dtos/income-document.dto";
-import { GoingDocument, GoingStatus, ProcessTicket, TicketStatus, User, UserRole } from "src/database/models";
+import { GoingDocument, GoingStatus, ProcessEditTicket, ProcessTicket, TicketStatus, User, UserRole } from "src/database/models";
 import { Op, where, WhereOptions } from "sequelize";
-import { GetAllGoingDocumentsRequest } from "./dtos/going-document.dto";
+import { DenyDocumentProcessDto, GetAllGoingDocumentsRequest } from "./dtos/going-document.dto";
 
 @Injectable()
 export class GoingDocumentService {
@@ -45,7 +45,7 @@ export class GoingDocumentService {
         }
 
         const { rows, count } = await GoingDocument.findAndCountAll({
-            include: ['leader', 'mainProcessor'],
+            include: ['leader', 'mainProcessor', 'collaborators'],
             order: [['id', 'DESC']],
             limit: +params.pageSize,
             offset: (params.page - 1) * +params.pageSize,
@@ -110,7 +110,7 @@ export class GoingDocumentService {
         }
 
         await ProcessTicket.create({
-            goingDocumentId: body.documentId,
+            goingDocumentId: goingDocument.id,
             mainProcessorId: body.specialistId,
             deadline: body.deadline,
             processDirection: body.processDirection,
@@ -119,11 +119,14 @@ export class GoingDocumentService {
         await GoingDocument.update(
             {
                 status: GoingStatus.ASSIGNMENT_FOR_PROCESS,
+                deadline: body.deadline,
             },
             {
                 where: { id: body.documentId },
             }
         );
+
+        await goingDocument.$set('collaborators', body.collaborators)
 
         return { result: true }
     }
@@ -266,6 +269,53 @@ export class GoingDocumentService {
         await document.update({
             status: GoingStatus.APPROVED
         })
+
+        return { result: true }
+    }
+
+    async denyDocumentProcess(leaderId: number, body: DenyDocumentProcessDto) {
+        const document = await GoingDocument.findOne({
+            where: {
+                id: body.documentId
+            }
+        })
+
+        if (!document) throw new NotFoundException('Document not found')
+
+        if (document.leaderId !== leaderId) throw new ForbiddenException('You are not in charge of this document')
+
+        if (document.status !== GoingStatus.WAITING_FOR_APPROVE) throw new BadRequestException('Status of document is not waiting for approve')
+
+        //cho nay
+        const mainProcessor = await User.findOne({
+            where: {
+                id: body.specialistId,
+                role: UserRole.SPECIALIST
+            }
+        })
+
+        if (!mainProcessor) {
+            throw new NotFoundException('Main processor not found')
+        }
+
+        await ProcessEditTicket.create({
+            goingDocumentId: body.documentId,
+            mainProcessorId: body.specialistId,
+            deadline: body.deadline,
+            processDirection: body.processDirection,
+        })
+
+        await GoingDocument.update(
+            {
+                status: GoingStatus.ASSIGNMENT_FOR_PROCESS,
+                mainProcessorId: body.specialistId,
+            },
+            {
+                where: { id: body.documentId },
+            }
+        );
+
+        await document.$set('collaborators', body.collaborators)
 
         return { result: true }
     }

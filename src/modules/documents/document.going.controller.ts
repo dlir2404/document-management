@@ -7,7 +7,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { AcceptGoingDocumentDto, GetAllGoingDocumentsRequest } from "./dtos/going-document.dto";
+import { AcceptGoingDocumentDto, DenyDocumentProcessDto, GetAllGoingDocumentsRequest } from "./dtos/going-document.dto";
 
 @Controller('/going')
 @ApiTags('Going Documents')
@@ -85,10 +85,17 @@ export class GoingDocumentController {
   }
 
   @Post('/document/accept')
-  @ApiOperation({ summary: 'Specialist accept the request process ' })
+  @ApiOperation({ summary: 'Leader accept the document. Waiting to publish ' })
   @LeaderAuth()
   async acceptGoingDocument(@Body() body: AcceptGoingDocumentDto, @CurrentUserId() userId: number) {
     return this.goingService.acceptGoingDocument(userId, body.documentId)
+  }
+
+  @Post('/document/deny')
+  @ApiOperation({ summary: 'Leader deny the document' })
+  @LeaderAuth()
+  async denyDocumentProcess(@Body() body: DenyDocumentProcessDto, @CurrentUserId() userId: number) {
+    return this.goingService.denyDocumentProcess(userId, body)
   }
 
   @Post('/document/publish')

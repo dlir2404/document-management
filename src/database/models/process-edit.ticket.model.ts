@@ -10,7 +10,7 @@ enum TicketStatus {
 }
 
 @Table
-export class ProcessTicket extends Model {
+export class ProcessEditTicket extends Model {
     @AutoIncrement
     @PrimaryKey
     @Column({

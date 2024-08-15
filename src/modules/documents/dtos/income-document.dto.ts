@@ -52,7 +52,10 @@ export const CompleteProcessDto = {
     },
     abstract: {
         type: 'string',
-    }
+    },
+    abstractDraft: {
+        type: 'string',
+    },
 }
 
 export const CompleteProcessGoingDto = {
@@ -99,6 +102,7 @@ export interface ICompleteProcess {
     fileName?: string;
     specialistId: number,
     abstract?: string;
+    abstractDraft?: string;
 }
 
 export interface ICompleteProcessGoing {

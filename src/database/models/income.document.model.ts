@@ -1,6 +1,6 @@
 import { AutoIncrement, Column, DataType, ForeignKey, BelongsTo, HasMany, Model, PrimaryKey, Table, BelongsToMany } from "sequelize-typescript";
 import { User } from "./user.model";
-import { Collaborating } from "./collaborating.model";
+import { IncomeDocumentCollaborator } from "./income-collaborating.model";
 
 export enum EmergencyLevel {
     NORMAL = 'normal',
@@ -69,6 +69,11 @@ export class IncomeDocument extends Model {
     emergencyLevel: EmergencyLevel;
 
     @Column({
+        type: DataType.DATE
+    })
+    deadline: Date;
+
+    @Column({
         type: DataType.STRING
     })
     thematic: string;
@@ -91,7 +96,7 @@ export class IncomeDocument extends Model {
     @BelongsTo(() => User, 'mainProcessorId')
     mainProcessor: User;
 
-    @BelongsToMany(() => User, () => Collaborating)
+    @BelongsToMany(() => User, () => IncomeDocumentCollaborator)
     collaborators: User[];
 
     @Column({
@@ -103,6 +108,11 @@ export class IncomeDocument extends Model {
         type: DataType.STRING
     })
     abstract: string;
+
+    @Column({
+        type: DataType.STRING
+    })
+    abstractDraft: string;
 
     @Column({
         type: DataType.ENUM(...Object.values(IncomeStatus)),

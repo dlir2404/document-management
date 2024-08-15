@@ -114,7 +114,7 @@ export class IncomeDocumentService {
         }
 
         const { rows, count } = await IncomeDocument.findAndCountAll({
-            include: ['leader', 'mainProcessor'],
+            include: ['leader', 'mainProcessor', 'collaborators'],
             order: [['id', 'DESC']],
             limit: +params.pageSize,
             offset: (params.page - 1) * +params.pageSize,
@@ -208,11 +208,14 @@ export class IncomeDocumentService {
             {
                 status: IncomeStatus.ASSIGNED_FOR_PROCESS,
                 mainProcessorId: body.specialistId,
+                deadline: body.deadline,
             },
             {
                 where: { id: body.documentId },
             }
         );
+
+        await incomeDocument.$set('collaborators', body.collaborators)
 
         return { result: true }
     }
@@ -324,7 +327,8 @@ export class IncomeDocumentService {
         await IncomeDocument.update(
             {
                 status: IncomeStatus.WAITING_FOR_APPROVING_DRAFT,
-                draftUrl: body.fileName
+                draftUrl: body.fileName,
+                abstractDraft: body.abstractDraft
             },
             {
                 where: {
@@ -364,7 +368,7 @@ export class IncomeDocumentService {
 
         //dang lam toi day
         await GoingDocument.create({
-            abstractDraft: document.abstract,
+            abstractDraft: document.abstractDraft,
             draftUrl: document.draftUrl,
             sendFrom: document.mainProcessor.room?.name || null,
             leaderId: document.leaderId
@@ -414,6 +418,8 @@ export class IncomeDocumentService {
                 where: { id: body.documentId },
             }
         );
+
+        await document.$set('collaborators', body.collaborators)
 
         return { result: true }
     }
