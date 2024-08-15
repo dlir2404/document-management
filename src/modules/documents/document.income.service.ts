@@ -215,7 +215,9 @@ export class IncomeDocumentService {
             }
         );
 
-        await incomeDocument.$set('collaborators', body.collaborators)
+        if (body.collaborators && body.collaborators.length > 0) {
+            await incomeDocument.$set('collaborators', body.collaborators)
+        }
 
         return { result: true }
     }
@@ -419,7 +421,9 @@ export class IncomeDocumentService {
             }
         );
 
-        await document.$set('collaborators', body.collaborators)
+        if (body.collaborators && body.collaborators.length > 0) {
+            await document.$set('collaborators', body.collaborators)
+        }
 
         return { result: true }
     }

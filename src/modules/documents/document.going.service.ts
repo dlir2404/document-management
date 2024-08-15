@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { ICompleteProcessGoing, ISearch, RequestProcessDto } from "./dtos/income-document.dto";
-import { GoingDocument, GoingStatus, ProcessEditTicket, ProcessTicket, TicketStatus, User, UserRole } from "src/database/models";
+import { GoingDocument, GoingStatus, ProcessEditTicket, ProcessTicket, Room, TicketStatus, User, UserRole } from "src/database/models";
 import { Op, where, WhereOptions } from "sequelize";
 import { AcceptGoingDocumentDto, DenyDocumentProcessDto, GetAllGoingDocumentsRequest } from "./dtos/going-document.dto";
 
@@ -126,7 +126,9 @@ export class GoingDocumentService {
             }
         );
 
-        await goingDocument.$set('collaborators', body.collaborators)
+        if (body.collaborators && body.collaborators.length > 0) {
+            await goingDocument.$set('collaborators', body.collaborators)
+        }
 
         return { result: true }
     }
@@ -267,8 +269,19 @@ export class GoingDocumentService {
 
         if (leaderId !== document.leaderId) throw new ForbiddenException('You are not in charge of this document')
 
+        const leader = await User.findOne({
+            where: {
+                id: leaderId,
+                role: UserRole.LEADER
+            }
+        })
+
+        if (!leader) throw new NotFoundException('Leader not found')
+
         await document.update({
-            status: GoingStatus.APPROVED
+            status: GoingStatus.APPROVED,
+            signer: leader.username,
+            signDate: (new Date()).toISOString()
         })
 
         return { result: true }
@@ -316,13 +329,16 @@ export class GoingDocumentService {
             }
         );
 
-        await document.$set('collaborators', body.collaborators)
+        if (body.collaborators && body.collaborators.length > 0) {
+            await document.$set('collaborators', body.collaborators)
+        }
 
         return { result: true }
     }
 
     async publishGoingDocument(officeClerkId: number, body: AcceptGoingDocumentDto) {
         const document = await GoingDocument.findOne({
+            include: ['mainProcessor'],
             where: {
                 id: body.documentId
             }
@@ -330,9 +346,16 @@ export class GoingDocumentService {
 
         if (!document) throw new NotFoundException('Document not found')
 
+        const room = await Room.findOne({
+            where: {
+                id: document.mainProcessor.roomId
+            }
+        })
+
         await document.update({
             status: GoingStatus.PUBLISHED,
-            number: body.number
+            number: body.number,
+            sendFrom: room?.name || null
         })
 
         return { result: true }
