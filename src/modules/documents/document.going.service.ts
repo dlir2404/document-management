@@ -55,6 +55,36 @@ export class GoingDocumentService {
         return { rows, count }
     }
 
+    async getGoingDocumentTicket(documentId: number) {
+        const document = await GoingDocument.findOne({
+            where: {
+                id: documentId
+            }
+        })
+
+        const processEditTicket = await ProcessEditTicket.findOne({
+            where: {
+                goingDocumentId: documentId
+            }
+        })
+
+        if (processEditTicket) {
+            return {
+                processEditTicket: processEditTicket
+            }
+        }
+
+        const processTicket = await ProcessTicket.findOne({
+            where: {
+                goingDocumentId: documentId
+            }
+        })
+
+        return {
+            processTicket: processTicket
+        }
+    }
+
     async searchDocument({ query, page, pageSize }: ISearch) {
         let where: WhereOptions<GoingDocument> = {}
 

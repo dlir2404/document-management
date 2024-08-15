@@ -34,6 +34,14 @@ export class GetAllGoingDocumentsRequest extends DateNPageDTO {
     query: string;
 }
 
+export class GetGoingDocumentTicketRequest {
+    @ApiProperty({
+        type: Number,
+        required: true
+    })
+    id: number;
+}
+
 
 export class DenyDocumentProcessDto {
     @ApiProperty({

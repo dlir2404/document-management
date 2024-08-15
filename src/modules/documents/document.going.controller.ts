@@ -7,7 +7,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { AcceptGoingDocumentDto, DenyDocumentProcessDto, GetAllGoingDocumentsRequest } from "./dtos/going-document.dto";
+import { AcceptGoingDocumentDto, DenyDocumentProcessDto, GetAllGoingDocumentsRequest, GetGoingDocumentTicketRequest } from "./dtos/going-document.dto";
 
 @Controller('/going')
 @ApiTags('Going Documents')
@@ -16,6 +16,11 @@ export class GoingDocumentController {
   @Get('/all')
   async getIncomeDocuments(@Query() request: GetAllGoingDocumentsRequest) {
     return this.goingService.getGoingDocuments(request)
+  }
+
+  @Get('/document/ticket')
+  async getIncomeDocumentTicket(@Query() request: GetGoingDocumentTicketRequest) {
+    return this.goingService.getGoingDocumentTicket(request.id)
   }
 
   @Post('request-process')
