@@ -240,6 +240,7 @@ export class GoingDocumentService {
                 status: GoingStatus.WAITING_FOR_APPROVE,
                 goingUrl: body.fileName,
                 sendTo: body.sendTo,
+                sendFrom: specialist.room?.name || null,
                 category: body.category,
                 emergencyLevel: body.emergencyLevel,
                 thematic: body.thematic,
