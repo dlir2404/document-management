@@ -28,6 +28,12 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT') || 3000;
 
+  console.log(">>>>> ", configService.get<string>('DATABASE_HOST'))
+  console.log(">>>>> ", configService.get<string>('DATABASE_PORT'))
+  console.log(">>>>> ", configService.get<string>('DATABASE_USER'))
+  console.log(">>>>> ", configService.get<string>('DATABASE_PASS'))
+  console.log(">>>>> ", configService.get<string>('DATABASE_NAME'))
+
   app.useStaticAssets(path.join(__dirname, '../uploads'))
 
   await app.listen(port, () => {
