@@ -9,7 +9,7 @@ import { AdminAuth, CurrentUserId } from "src/shared/decorators";
 @ApiTags('Admin Auth')
 @Controller('admin/auth')
 export class AdminAuthController {
-    constructor(private readonly adminAuthService: AdminAuthService) {}
+    constructor(private readonly adminAuthService: AdminAuthService) { }
     @Post('login')
     @ApiOperation({
         summary: 'Login for admin'
@@ -39,7 +39,7 @@ export class AdminAuthController {
     })
     @Get('/me')
     @AdminAuth()
-    async getMe(@CurrentUserId() userId: number){
-        return userId;
+    async getMe(@CurrentUserId() userId: number) {
+        return this.adminAuthService.getMe(userId);
     }
 }

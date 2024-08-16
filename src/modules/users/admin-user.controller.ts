@@ -9,8 +9,8 @@ import { plainToInstance } from "class-transformer";
 
 @ApiTags('Admin User')
 @Controller('admin')
-export class AdminUserController{
-    constructor(private readonly userService: UsersService) {}
+export class AdminUserController {
+    constructor(private readonly userService: UsersService) { }
 
     @ApiOperation({
         summary: 'Admin create user'
@@ -21,7 +21,7 @@ export class AdminUserController{
     })
     @Post('/user')
     @AdminAuth()
-    createUser(@Body() request: AdminCreateUserRequest){
+    createUser(@Body() request: AdminCreateUserRequest) {
         return this.userService.createUser(request)
     }
 
@@ -34,7 +34,7 @@ export class AdminUserController{
     })
     @Get('/user/all')
     @AdminAuth()
-    async getAllUsers(@Query() request: GetAllUsersRequest){
+    async getAllUsers(@Query() request: GetAllUsersRequest) {
         const result = await this.userService.getAllUsers(request)
         return plainToInstance(ListUserResponse, result)
     }

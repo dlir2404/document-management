@@ -1,6 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
 import { IsDefined, IsString } from "class-validator"
-import { IsEmail } from "sequelize-typescript"
 import { UserRole } from "src/database/models"
 
 export class AdminCreateUserRequest {
