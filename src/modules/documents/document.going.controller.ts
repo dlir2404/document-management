@@ -1,6 +1,6 @@
 import { BadRequestException, Body, Controller, Get, Post, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { CurrentUserId, LeaderAuth, OfficeClerkAuth, SpecialistAuth } from "src/shared/decorators";
+import { AuthRequired, CurrentUserId, LeaderAuth, OfficeClerkAuth, SpecialistAuth } from "src/shared/decorators";
 import { AcceptRequestProcessDto, CompleteProcessGoingDto, DenyRequestProcessDto, ISearch, LastIncomeTicketRequest, RequestProcessDto } from "./dtos/income-document.dto";
 import { GoingDocumentService } from "./document.going.service";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -8,6 +8,7 @@ import { diskStorage } from "multer";
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { AcceptGoingDocumentDto, DenyDocumentProcessDto, GetAllGoingDocumentsRequest, GetGoingDocumentTicketRequest, UploadDraftDocumentRequest } from "./dtos/going-document.dto";
+import { UserRole } from "src/database/models";
 
 @Controller('/going')
 @ApiTags('Going Documents')
@@ -45,13 +46,16 @@ export class GoingDocumentController {
       },
     },
   })
+  @AuthRequired([UserRole.LEADER, UserRole.OFFICE_CLERK, UserRole.SPECIALIST])
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: any
+    @Body() body: any,
+    @CurrentUserId() userId: number
   ) {
     return await this.goingService.upload({
       fileName: file?.filename,
-      ...body
+      ...body,
+      userId
     })
   }
 

@@ -8,6 +8,16 @@ import { AcceptGoingDocumentDto, DenyDocumentProcessDto, GetAllGoingDocumentsReq
 export class GoingDocumentService {
 
     async upload(body: IUploadGoingDocumentDraft) {
+        const user = await User.findOne({
+            where: {
+                id: body.userId
+            }
+        })
+
+        if (user.role === UserRole.LEADER) {
+            body.leaderId = user.id
+        }
+
         await GoingDocument.create({
             ...body,
             draftUrl: body.fileName

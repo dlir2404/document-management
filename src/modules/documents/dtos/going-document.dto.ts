@@ -92,6 +92,9 @@ export const UploadDraftDocumentRequest = {
     },
     abstractDraft: {
         type: 'string'
+    },
+    leaderId: {
+        type: 'number'
     }
 }
 
@@ -100,4 +103,6 @@ export interface IUploadGoingDocumentDraft {
     sendFrom?: string;
     category?: string;
     abstractDraft?: string;
+    leaderId?: number;
+    userId?: number;
 }
