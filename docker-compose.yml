@@ -12,8 +12,8 @@ services:
     ports:
       - "3306:3306"
 
-  app:
-    build: .
+  be:
+    image: thaihoang1409/document-be:v2
     environment:
       PORT: 3001
       JWT_SECRET: thaihoangtest
@@ -24,6 +24,26 @@ services:
       DATABASE_NAME: document-management
     ports:
       - "3001:3001"
+    depends_on:
+      - db
+  
+  fe:
+    image: thaihoang1409/document-fe:v1
+    environment:
+      NEXT_PUBLIC_API: http://localhost:3001/api
+      NEXT_PUBLIC_STATIC: http://localhost:3001/
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+  
+  admin:
+    image: thaihoang1409/document-admin:v1
+    environment:
+      NEXT_PUBLIC_API: http://localhost:3001/api
+      NEXT_PUBLIC_STATIC: http://localhost:3001/
+    ports:
+      - "3002:3000"
     depends_on:
       - db
 
