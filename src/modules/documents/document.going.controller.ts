@@ -60,6 +60,7 @@ export class GoingDocumentController {
   }
 
   @Get('/all')
+  @AuthRequired([UserRole.LEADER, UserRole.OFFICE_CLERK, UserRole.SPECIALIST])
   async getIncomeDocuments(@Query() request: GetAllGoingDocumentsRequest) {
     return this.goingService.getGoingDocuments(request)
   }

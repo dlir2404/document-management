@@ -6,7 +6,8 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
-import { CurrentUserId, LeaderAuth, OfficeClerkAuth, SpecialistAuth } from "src/shared/decorators";
+import { AuthRequired, CurrentUserId, LeaderAuth, OfficeClerkAuth, SpecialistAuth } from "src/shared/decorators";
+import { UserRole } from "src/database/models";
 
 @Controller('/income')
 @ApiTags('Income Documents')
@@ -56,6 +57,7 @@ export class IncomeDocumentController {
   }
 
   @Get('/all')
+  @AuthRequired([UserRole.LEADER, UserRole.OFFICE_CLERK, UserRole.SPECIALIST])
   async getIncomeDocuments(@Query() request: GetAllIncomeDocumentsRequest) {
     return this.incomeService.getIncomeDocuments(request)
   }
