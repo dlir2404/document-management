@@ -113,6 +113,30 @@ export class IncomeDocumentService {
             }
         }
 
+        if (params.from && params.to) {
+            where = {
+                ...where,
+                createdAt: {
+                    [Op.between]: [new Date(params.from), new Date(params.to)]
+                }
+            }
+        } else if (params.from && !params.to) {
+            where = {
+                ...where,
+                createdAt: {
+                    [Op.gte]: new Date(params.from)
+                }
+            };
+        } else if (!params.from && params.to) {
+            where = {
+                ...where,
+                createdAt: {
+                    [Op.lte]: new Date(params.to)
+                }
+            };
+        }
+        
+
         const { rows, count } = await IncomeDocument.findAndCountAll({
             include: ['leader', 'mainProcessor', 'collaborators'],
             order: [['id', 'DESC']],
